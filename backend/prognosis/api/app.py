@@ -24,17 +24,16 @@ class BonePrognosis(Resource):
         parser.add_argument('circularity')
         args = parser.parse_args()
         prognosis_input = np.fromiter(args.values(), dtype=float)
-        print(prognosis_input)
         out = {'Prediction': bone_prognosis_model.predict([prognosis_input])[0]}
-        print(out)
-        return out, 200
+        print("Output: ", out)
+        return { "Prediction": "There is a possibility of cancer within the next 5 years" if int(out['Prediction']) else "Cancer within next 5 years is unlikely" }, 200
 
 class KidneyPrognosis(Resource):
     @staticmethod
     def post():
         parser = reqparse.RequestParser()
         parser.add_argument('age')
-        parser.add_argument('bp	')
+        parser.add_argument('bp')
         parser.add_argument('al')
         parser.add_argument('su')
         parser.add_argument('rbc')
@@ -52,10 +51,9 @@ class KidneyPrognosis(Resource):
         parser.add_argument('ane')
         args = parser.parse_args()
         prognosis_input = np.fromiter(args.values(), dtype=float)
-        print(prognosis_input)
         out = {'Prediction': kidney_prognosis_model.predict([prognosis_input])[0]}
-        print(out)
-        return out, 200
+        print("Output: ", out)
+        return { "Prediction": "There is a possibility of cancer within the next 5 years" if int(out['Prediction']) else "Cancer within next 5 years is unlikely" }, 200
 
 API.add_resource(BonePrognosis, '/prognosis/bone')
 API.add_resource(KidneyPrognosis, '/prognosis/kidney')
