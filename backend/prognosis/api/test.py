@@ -1,6 +1,6 @@
 import requests
 
-BASE_URL = 'http://127.0.0.1:5000/prognosis/'
+BASE_URL = 'https://cancure-prognosis-api.herokuapp.com/prognosis/'
 BONE_PROGNOSIS = BASE_URL + 'bone'
 KIDNEY_PROGNOSIS = BASE_URL + 'kidney'
 
