@@ -11,15 +11,15 @@ app = Flask(__name__)
 def kidney_diagnosis():
     if request.method == 'POST':
         f = request.files['file']
-        file_path = "uploads/" + str(uuid.uuid4()) + ".jpg"
+        file_path = 'uploads/' + str(uuid.uuid4()) + '.jpg'
         f.save(file_path)
 
         model = torch.hub.load('pytorch/vision:v0.6.0', 'alexnet', pretrained = True)
-        model.classifier[4] = nn.Linear(4096,1024)
-        model.classifier[6] = nn.Linear(1024,5)
-        model.load_state_dict(torch.load('./kidney-diagnosis.pt', map_location=torch.device('cpu')))
+        model.classifier[4] = nn.Linear(4096, 1024)
+        model.classifier[6] = nn.Linear(1024, 5)
+        model.load_state_dict(torch.load('./kidney-diagnosis.pt', map_location = torch.device('cpu')))
 
-        image = Image.open('test_dir/Image_5713.tif')
+        image = Image.open(file_path)
         test_transforms = transforms.Compose(
           [
             transforms.CenterCrop(224),
