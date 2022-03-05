@@ -1,5 +1,4 @@
 from flask import Flask, jsonify, request
-import uuid
 import torch
 import torch.nn as nn
 from torchvision import transforms
@@ -10,16 +9,12 @@ app = Flask(__name__)
 @app.route('/diagnosis/kidney', methods = ['GET', 'POST'])
 def kidney_diagnosis():
     if request.method == 'POST':
-        f = request.files['file']
-        file_path = 'uploads/' + str(uuid.uuid4()) + '.jpg'
-        f.save(file_path)
-
         model = torch.hub.load('pytorch/vision:v0.6.0', 'alexnet', pretrained = True)
         model.classifier[4] = nn.Linear(4096, 1024)
         model.classifier[6] = nn.Linear(1024, 5)
         model.load_state_dict(torch.load('./kidney-diagnosis.pt', map_location = torch.device('cpu')))
 
-        image = Image.open(file_path)
+        image = Image.open(request.files['file'].stream)
         test_transforms = transforms.Compose(
           [
             transforms.CenterCrop(224),
