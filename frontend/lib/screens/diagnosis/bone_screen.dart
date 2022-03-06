@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
@@ -8,27 +7,21 @@ import 'package:cancure/components/custom_app_bar.dart';
 import 'dart:async';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import 'package:cancure/services/UserDetails.dart';
 import 'package:cancure/services/endPoints.dart';
 
 class BoneDiagnosis extends StatefulWidget {
-  // static 'id' variable for the naming convention for the routes
-  static String id = "breastCancerDiagnosisScreen";
+  static String id = "boneCancerDiagnosisScreen";
 
   @override
   BoneDiagnosisState createState() => BoneDiagnosisState();
 }
 
 class BoneDiagnosisState extends State<BoneDiagnosis> {
-  //  VARIABLES
   File imageFile;
   Dio dio = new Dio();
   bool showSpinner = false;
-  bool showHighlightedImage = false;
   dynamic responseBody;
-  final _firestore = FirebaseFirestore.instance;
 
-  // OPEN GALLERY TO SELECT AN IMAGE METHOD (ASYNC TASK)
   _openGallery() async {
     setState(() {
       showSpinner = true;
@@ -38,85 +31,38 @@ class BoneDiagnosisState extends State<BoneDiagnosis> {
         // ignore: deprecated_member_use
         await ImagePicker.pickImage(source: ImageSource.gallery);
 
-    // NOTE that 'selectedPicture' may also contain 'null' value, suppose user opens gallery and exits
-    // without selecting a picture.
     setState(() {
       imageFile = selectedPicture;
-      showHighlightedImage = false;
       showSpinner = false;
     });
   }
 
-  // DETECT THE CANCER METHOD (ASYNC TASK)
   _detect(ProgressDialog progressDialog) async {
-    // If the user selects an image only we perform the API request else an alert will be displayed
     if (imageFile == null) {
-      // ALERT USER TO SELECT OR CAPTURE IMAGE FIRST OFF
       createAlertDialog(
           context, "Error", "There is no image selected or captured!", 404);
     } else {
       progressDialog.show();
       try {
-        // GETTING THE IMAGE NAME
         String fileName = imageFile.path.split('/').last;
-//        print(fileName);
-
-        // CREATING THE FORM DATA TO BE SENT TO THE BACKEND
         FormData formData = new FormData.fromMap({
           "file":
               await MultipartFile.fromFile(imageFile.path, filename: fileName),
         });
-//        print(formData);
 
-        // CREATING THE RESPONSE OBJECT TO GET THE RESULT FROM THE SERVER
         await getResponse(formData);
-
-        // RESPONSE RESULT FROM THE BACKEND
-        // responseBody = response.data[0];
-        String resultPrediction = responseBody['predition'];
-        String inputImageURL = responseBody['regular_image_url'];
-        String resultImageURL = responseBody['superimposed_image_url'];
-        String resultPercentage =
-            (100 - double.parse(responseBody['prediction_percentage']).floor())
-                .toString();
-
-        // Adding the response data into the database for report creation purpose
-        _firestore
-            .collection("users")
-            .doc(UserDetails.getUserData()["email"])
-            .collection("imageDetections")
-            .add({
-          "cancerType": "breast cancer",
-          "reportType": "diagnosis",
-          "result": resultPrediction,
-          "result_string": "$resultPrediction was detected",
-          "inputImageUrl": inputImageURL,
-          "imageUrl": resultImageURL,
-          "percentage": resultPercentage,
-          'timestamp': Timestamp.now(),
-        });
-
+        String resultPrediction = responseBody;
         progressDialog.hide();
-        // Display the spinner to indicate that its loading
-        setState(() {
-          showHighlightedImage = true;
-        });
 
-        // checking if the response is not null and displaying the result
         if (responseBody != null) {
-          // Displaying the alert dialog
-          createAlertDialog(context, "Diagnosis",
-              "Detection result: " + resultPrediction, 201);
+          createAlertDialog(context, "Diagnosis", resultPrediction, 201);
         } else {
-          // Displaying the alert dialog
           createAlertDialog(
               context, "Error", "Oops something went wrong!", 404);
         }
       } catch (e) {
-        // Displaying alert to the user
-        createAlertDialog(context, "Error", e.toString(), 404);
-
         progressDialog.hide();
+        createAlertDialog(context, "Error", e.toString(), 404);
       }
     }
   }
@@ -124,31 +70,26 @@ class BoneDiagnosisState extends State<BoneDiagnosis> {
   // Getting the detection response
   getResponse(FormData formData) async {
     Response response = await dio.post(
-      postBreastCancerDetection_API,
+      BONE_CANCER_DIAGNOSIS,
       data: formData,
     );
-    responseBody = response.data[0];
-//    print(responseBody);
+    responseBody = response.data['result'];
   }
 
-  // OPEN CAMERA METHOD TO CAPTURE IMAGE FOR DETECTION PURPOSE (ASYNC TASK)
   _openCamera() async {
     setState(() {
       showSpinner = true;
     });
 
     var selectedPicture =
+        // ignore: deprecated_member_use
         await ImagePicker.pickImage(source: ImageSource.camera);
 
     setState(() {
       imageFile = selectedPicture;
-      showHighlightedImage = false;
     });
 
-    // This delay is for building the image when clicked from camera cuz it takes some time to build
     Future.delayed(const Duration(milliseconds: 5000), () {
-      // NOTE that selectedPicture may also contain null value, suppose user opens the camera and exits
-      // without capturing a picture.
       setState(() {
         showSpinner = false;
       });
@@ -157,11 +98,9 @@ class BoneDiagnosisState extends State<BoneDiagnosis> {
 
   @override
   Widget build(BuildContext context) {
-    // Progress Dialog that will run till API Request is received
     final ProgressDialog progressDialog = ProgressDialog(context,
         type: ProgressDialogType.Normal, isDismissible: false, showLogs: true);
 
-    // Styling Progress Dialog
     progressDialog.style(
         message: '   Scanning\n   Image',
         padding: EdgeInsets.all(20),
@@ -207,7 +146,6 @@ class BoneDiagnosisState extends State<BoneDiagnosis> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // BREAST CANCER DIAGNOSIS TEXT CONTENT
                         Container(
                           alignment: Alignment.topLeft,
                           padding: EdgeInsets.only(left: 20),
@@ -235,28 +173,19 @@ class BoneDiagnosisState extends State<BoneDiagnosis> {
 
                         // DISPLAY THE UPLOADED IMAGE OR CAPTURED IMAGE BY THE USER
                         Expanded(
-                          child: showHighlightedImage == false
-                              ? Padding(
-                                  padding: const EdgeInsets.all(22),
-                                  child: imageFile == null
-                                      ? Image.asset(
-                                          'images/uploadImageGrey1.png',
-                                          scale: 13,
-                                        )
-                                      : Image.file(
-                                          imageFile,
-                                          width: 500,
-                                          height: 500,
-                                        ),
+                            child: Padding(
+                          padding: const EdgeInsets.all(22),
+                          child: imageFile == null
+                              ? Image.asset(
+                                  'images/uploadImageGrey1.png',
+                                  scale: 13,
                                 )
-                              : Padding(
-                                  padding: const EdgeInsets.all(20.0),
-                                  child: FadeInImage.assetNetwork(
-                                    placeholder: 'images/loading.gif',
-                                    image: responseBody["regular_image_url"],
-                                  ),
+                              : Image.file(
+                                  imageFile,
+                                  width: 500,
+                                  height: 500,
                                 ),
-                        ),
+                        )),
 
                         // CAPTURE(FROM CAMERA) AND UPLOAD(FROM GALLERY) BUTTON
                         Row(
