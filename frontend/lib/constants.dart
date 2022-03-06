@@ -46,7 +46,7 @@ const KIDNEY_CANCER_PROGNOSIS_QUESTIONS = [
   "Blood Pressure",
   "Albumin",
   "Sugar",
-  "Red Blood Cells",
+  "Are your Red Blood Cells normal?", //yes/no
   "Blood Glucose Random",
   "Blood Urea",
   "Serum Creatinine",
@@ -54,11 +54,11 @@ const KIDNEY_CANCER_PROGNOSIS_QUESTIONS = [
   "Haemoglobin",
   "Packed Cell Volume",
   "Red Blood Cell Count",
-  "Hyper Tension",  //yes/no
-  "Diabetes Melitus", //yes/no
-  "Coronary Artery Disease", //yes/no
-  "Appetite", //good/bad
-  "Anemia" //yes/no
+  "Do you have Hypertension?",  //yes/no
+  "Do you have diabetes?", //yes/no
+  "Do you have any heart disease?", //yes/no
+  "Do you have a good appetite?", //yes/no
+  "Are you anemic?" //yes/no
 ];
 
 const BONE_CANCER_PROGNOSIS_QUESTIONS = [

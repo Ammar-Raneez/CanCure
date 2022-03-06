@@ -100,9 +100,13 @@ class CancerPrognosisState extends State<CancerPrognosis> {
 
                         return null;
                       },
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      inputFormatters: post.toString().endsWith('?')
+                          ? [FilteringTextInputFormatter.singleLineFormatter]
+                          : [FilteringTextInputFormatter.digitsOnly],
                       controller: _textFieldControllers[_count],
-                      keyboardType: TextInputType.number,
+                      keyboardType: post.toString().endsWith('?')
+                          ? TextInputType.text
+                          : TextInputType.number,
                       decoration: InputDecoration(
                           filled: true,
                           fillColor: Colors.white,
@@ -114,7 +118,9 @@ class CancerPrognosisState extends State<CancerPrognosis> {
                             borderSide: new BorderSide(color: Colors.white),
                             borderRadius: new BorderRadius.circular(16),
                           ),
-                          hintText: 'Enter the Value for the Input'),
+                          hintText: post.toString().endsWith('?')
+                              ? 'Please Enter "yes" or "no"'
+                              : 'Enter the Value for the Input'),
                     ),
                   ])),
             ),
@@ -249,35 +255,71 @@ class CancerPrognosisState extends State<CancerPrognosis> {
                                 int.parse(_textFieldControllers[5].text),
                           };
                         } else if (_cancerType == "Kidney Cancer") {
+                          const validBinary = ["yes", "no"];
+                          if (!validBinary.contains(_textFieldControllers[4]
+                                  .text
+                                  .toLowerCase()) ||
+                              !validBinary.contains(_textFieldControllers[12]
+                                  .text
+                                  .toLowerCase()) ||
+                              !validBinary.contains(_textFieldControllers[13]
+                                  .text
+                                  .toLowerCase()) ||
+                              !validBinary.contains(_textFieldControllers[14]
+                                  .text
+                                  .toLowerCase()) ||
+                              !validBinary.contains(_textFieldControllers[15]
+                                  .text
+                                  .toLowerCase()) ||
+                              !validBinary.contains(_textFieldControllers[16]
+                                  .text
+                                  .toLowerCase())) {
+                            createAlertDialog(context, "Error",
+                                "Please enter valid inputs", 404);
+                          }
+
                           prognosisBody = {
-                            "radius_mean": _textFieldControllers[0].text,
-                            "texture_mean": _textFieldControllers[1].text,
-                            "perimeter_mean": _textFieldControllers[2].text,
-                            "compactness_mean": _textFieldControllers[3].text,
-                            "concavity_mean": _textFieldControllers[4].text,
-                            "concave points_mean":
-                                _textFieldControllers[5].text,
-                            "fractal_dimension_mean":
-                                _textFieldControllers[6].text,
-                            "radius_se": _textFieldControllers[7].text,
-                            "texture_se": _textFieldControllers[8].text,
-                            "perimeter_se": _textFieldControllers[9].text,
-                            "compactness_se": _textFieldControllers[10].text,
-                            "concavity_se": _textFieldControllers[11].text,
-                            "concave points_se": _textFieldControllers[12].text,
-                            "symmetry_se": _textFieldControllers[13].text,
-                            "fractal_dimension_se":
-                                _textFieldControllers[14].text,
-                            "compactness_worst": _textFieldControllers[15].text,
-                            "concavity_worst": _textFieldControllers[16].text,
-                            "concave points_worst":
-                                _textFieldControllers[17].text,
-                            "symmetry_worst": _textFieldControllers[18].text,
-                            "fractal_dimension_worst":
-                                _textFieldControllers[19].text,
-                            "tumor_size": _textFieldControllers[20].text,
-                            "positive_axillary_lymph_node":
-                                _textFieldControllers[21].text
+                            "age": _textFieldControllers[0].text,
+                            "bp": _textFieldControllers[1].text,
+                            "al": _textFieldControllers[2].text,
+                            "su": _textFieldControllers[3].text,
+                            "rbc":
+                                _textFieldControllers[4].text.toLowerCase() ==
+                                        "yes"
+                                    ? 1
+                                    : 0,
+                            "bgr": _textFieldControllers[5].text,
+                            "bu": _textFieldControllers[6].text,
+                            "sc": _textFieldControllers[7].text,
+                            "sod": _textFieldControllers[8].text,
+                            "hemo": _textFieldControllers[9].text,
+                            "pcv": _textFieldControllers[10].text,
+                            "rc": _textFieldControllers[11].text,
+                            "htn":
+                                _textFieldControllers[12].text.toLowerCase() ==
+                                        "yes"
+                                    ? 1
+                                    : 0,
+                            "dm":
+                                _textFieldControllers[13].text.toLowerCase() ==
+                                        "yes"
+                                    ? 1
+                                    : 0,
+                            "cad":
+                                _textFieldControllers[14].text.toLowerCase() ==
+                                        "yes"
+                                    ? 1
+                                    : 0,
+                            "appet":
+                                _textFieldControllers[15].text.toLowerCase() ==
+                                        "yes"
+                                    ? 1
+                                    : 0,
+                            "ane":
+                                _textFieldControllers[16].text.toLowerCase() ==
+                                        "yes"
+                                    ? 1
+                                    : 0,
                           };
                         }
 
