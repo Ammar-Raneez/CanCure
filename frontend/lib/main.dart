@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cancure/screens/diagnosis/bone_screen.dart';
 import 'package:cancure/screens/diagnosis/kidney_screen.dart';
-import 'package:cancure/screens/forgetPassword_screen.dart';
+import 'package:cancure/screens/forget_password_screen.dart';
 import 'package:cancure/screens/current_screen.dart';
 import 'package:cancure/screens/login_screen.dart';
 import 'package:cancure/screens/registration_screen.dart';

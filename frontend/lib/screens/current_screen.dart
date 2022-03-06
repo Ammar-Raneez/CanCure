@@ -3,13 +3,12 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cancure/screens/home_screen.dart';
-import 'package:cancure/screens/mainCancer_screen.dart';
+import 'package:cancure/screens/main_cancer_screen.dart';
 import 'package:cancure/components/custom_app_bar.dart';
 import 'package:cancure/services/UserDetails.dart';
 
 // ignore: must_be_immutable
 class CurrentScreen extends StatefulWidget {
-  // static 'id' variable for the naming convention for the routes
   static String id = "navigationBottom";
   String updatedUsername;
   String updatedEmail;
@@ -32,8 +31,6 @@ class CurrentScreen extends StatefulWidget {
 }
 
 class _CurrentScreenState extends State<CurrentScreen> {
-  // Page controller is used to control the flow of the main pages
-  // (HOME, CANCER AND CHATBOT PAGE/SCREEN)
   int currentIndex = 0;
   final _auth = FirebaseAuth.instance;
   final user = FirebaseAuth.instance.currentUser;
@@ -43,13 +40,9 @@ class _CurrentScreenState extends State<CurrentScreen> {
   List<Widget> swipeScreen;
 
   _CurrentScreenState() {
-    // getting the current user details on loading of the screen
     getCurrentUser();
-
     if (username == null) username = UserDetails.getUserData()["username"];
-
     if (gender == null) gender = UserDetails.getUserData()["gender"];
-
     if (email == null) email = UserDetails.getUserData()["email"];
 
     swipeScreen = [HomeScreen(), MainCancerTypesScreen()];
@@ -62,27 +55,19 @@ class _CurrentScreenState extends State<CurrentScreen> {
     ];
   }
 
-  // using this User instance we can access the details of the logged user using
-  // the normal email/pass auth method not the (Google Auth)
   User loggedInUser = FirebaseAuth.instance.currentUser;
   final _firestore = FirebaseFirestore.instance;
   var loggedInUserGoogle = "";
 
-  // Getting the current user details
   void getCurrentUser() async {
     try {
-      // getting the current user (email/pass auth)
       final user = _auth.currentUser;
       if (user != null) {
-        // This will run when the user logs in using the normal username and password way
         print("(Email-Password login) User is Present!");
       }
 
-      //fetch username
-      var userDocument = await _firestore
-          .collection("users")
-          .doc(loggedInUser.email)
-          .get();
+      var userDocument =
+          await _firestore.collection("users").doc(loggedInUser.email).get();
 
       setState(() {
         username = userDocument["username"];
@@ -94,7 +79,6 @@ class _CurrentScreenState extends State<CurrentScreen> {
     }
   }
 
-  // pageController for the navigation bar
   PageController _pageController = PageController(
     initialPage: 0,
   );
@@ -111,17 +95,13 @@ class _CurrentScreenState extends State<CurrentScreen> {
             Scaffold(
               backgroundColor: Color(0xffAFD5DA),
               appBar: CustomAppBar.settings(username, email, gender, context),
-              // under this body only the screen go into
               body: PageView(
                 controller: _pageController,
-
-                // when you swipe through the screen (HOME, CANCER, CHATBOT)
                 onPageChanged: (page) {
                   setState(() {
                     currentIndex = page;
                   });
                 },
-                // List of the Main Swiping Screens
                 children: swipeScreen,
               ),
             ),
@@ -132,8 +112,6 @@ class _CurrentScreenState extends State<CurrentScreen> {
                 color: Colors.white,
                 backgroundColor: Color(0xffAFD5DA),
                 index: currentIndex,
-
-                // Logic for the switching of MAIN SCREENS (HOME, CANCER, CHATBOT)
                 onTap: (index) {
                   setState(() {
                     currentIndex = index;

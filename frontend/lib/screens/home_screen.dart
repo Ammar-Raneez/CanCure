@@ -5,15 +5,11 @@ import 'package:cancure/components/homepage_card.dart';
 import 'package:cancure/components/widgets.dart';
 import 'package:cancure/services/UserDetails.dart';
 
-//store current username
 var username = "";
-
-//To fetch username, and check current user
 var loggedInUserEP;
 
 // ignore: must_be_immutable
 class HomeScreen extends StatefulWidget {
-  // static 'id' variable for the naming convention for the routes
   static String id = "homeScreen";
   String updatedUsername;
 
@@ -44,11 +40,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void getCurrentUser() async {
     try {
       if (user != null) {
-        // This will run when the user logs in using the normal username and password way
         loggedInUserEP = user.email;
       }
 
-      //fetch username
       await _firestore
           .collection("users")
           .doc(loggedInUserEP)
@@ -122,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   onTap: () {
                                   },
                                   child: HomeCard(
-                                    cardTitle: 'Personal Manager',
+                                    cardTitle: 'Card One',
                                     cardColor: '0xFFdb5682',
                                     textColor: '0xFFFFFFFF',
                                     cardImage:
@@ -135,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   onTap: () {
                                   },
                                   child: HomeCard(
-                                    cardTitle: 'Exercise Plan',
+                                    cardTitle: 'Card Two',
                                     cardColor: '0xFFa4d44a',
                                     textColor: '0xFFFFFFFF',
                                     cardImage:
@@ -148,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   onTap: () {
                                   },
                                   child: HomeCard(
-                                    cardTitle: 'Meal Plan',
+                                    cardTitle: 'Card Three',
                                     cardColor: '0xFF4ad4b1',
                                     textColor: '0xFFFFFFFF',
                                     cardImage: 'images/CardImages/mealPlan.jpg',

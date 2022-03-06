@@ -6,7 +6,6 @@ import 'package:cancure/constants.dart';
 import 'package:cancure/components/alert_widget.dart';
 
 class ForgetPassword extends StatefulWidget {
-  // static 'id' variable for the naming convention for the routes
   static String id = "forgetPassword";
 
   @override
@@ -14,16 +13,13 @@ class ForgetPassword extends StatefulWidget {
 }
 
 class _ForgetPasswordState extends State<ForgetPassword> {
-  // Variables used
   String email;
   var _emailAddressTextFieldController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool showSpinner = false;
 
-  // Performing forget password functionality using firebase for resetting password
   forgetPasswordFunctionality(BuildContext context) async {
     if (email == null || email == "") {
-      // Alert the user to enter the email
       createAlertDialog(
           context, "Error", "Please enter an email to proceed", 404);
     } else {
@@ -32,11 +28,8 @@ class _ForgetPasswordState extends State<ForgetPassword> {
           .hasMatch(email);
 
       if (!emailValid) {
-        // Alerts invalid email
         createAlertDialog(context, "Error", "Invalid email format", 404);
       } else {
-        // Since we have an email we can proceed
-        // If all the fields are filled and ready to proceed
         setState(() {
           showSpinner = true;
         });
@@ -52,7 +45,6 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                     "Please check your mail to reset password!",
                     404,
                   ),
-                  // stops displaying the spinner once the result comes back
                   setState(() {
                     showSpinner = false;
                   })
@@ -60,14 +52,12 @@ class _ForgetPasswordState extends State<ForgetPassword> {
               )
               .catchError((e) {
             createAlertDialog(context, "Error", e.message, 404);
-            // stops displaying the spinner once the result comes back
             setState(() {
               showSpinner = false;
             });
           });
         } catch (e) {
           createAlertDialog(context, "Error", e.message, 404);
-          // stops displaying the spinner once the result comes back
           setState(() {
             showSpinner = false;
           });
@@ -164,7 +154,6 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // GO TO THE LOGIN SCREEN
                       Navigator.pop(context);
                     },
                     child: Text(
@@ -177,10 +166,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                   ),
                   RoundedButton(
                     onPressed: () {
-                      //Implement forget password functionality.
                       forgetPasswordFunctionality(context);
-
-                      // clearing the fields once all the data is collected
                       _emailAddressTextFieldController.clear();
                     },
                     colour: Colors.lightBlueAccent,

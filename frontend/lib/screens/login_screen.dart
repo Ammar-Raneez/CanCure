@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cancure/components/alert_widget.dart';
 import 'package:cancure/components/rounded_button.dart';
 import 'package:cancure/constants.dart';
-import 'package:cancure/screens/forgetPassword_screen.dart';
+import 'package:cancure/screens/forget_password_screen.dart';
 import 'package:cancure/screens/registration_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -10,7 +10,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cancure/services/UserDetails.dart';
 
 class LoginScreen extends StatefulWidget {
-  // static 'id' variable for the naming convention for the routes
   static String id = "loginScreen";
 
   @override
@@ -18,7 +17,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // Variables used
   String email;
   String password;
   final _firestore = FirebaseFirestore.instance;
@@ -31,10 +29,8 @@ class _LoginScreenState extends State<LoginScreen> {
   var _emailAddressTextFieldController = TextEditingController();
   var _passwordTextFieldController = TextEditingController();
 
-  // method to implement login functionality using username and password
   loginUserByEmailAndPassword(BuildContext context) async {
     if (email == null || email == "" || password == null || password == "") {
-      // Alerts the user to fill all the fields required
       createAlertDialog(
           context, "Error", "Please fill all the given fields to proceed", 404);
     } else {
@@ -43,43 +39,27 @@ class _LoginScreenState extends State<LoginScreen> {
           .hasMatch(email);
 
       if (!emailValid) {
-        // Alerts invalid email
         createAlertDialog(context, "Error", "Invalid email format", 404);
       } else {
-        // If all the fields are filled and ready to proceed
         setState(() {
           showSpinner = true;
         });
 
         try {
-          // getting the logged in user details as a USER object or type
           final user = await _auth.signInWithEmailAndPassword(
               email: email, password: password);
 
-          // displaying alerts according to the progress
           if (user != null) {
-            //clear chat bot messages on login/register
-            _firestore
-                .collection("chatbot-messages")
-                .doc(email)
-                .collection("chatbot-messages")
-                .get()
-                .then((value) => {
-                      for (var msg in value.docs) {msg.reference.delete()}
-                    });
-
             // Displaying the alert dialog
             setState(() {
               email = "";
               password = "";
             });
 
-            // Getting a snapshot of the users (to get username of logged in user)
             QuerySnapshot querySnapshot =
                 await _firestore.collection("users").get();
             querySnapshot.docs.forEach((document) {
               if (document.data()['userEmail'] == user.user.email) {
-                // setting the user name and its email to the global user details variable
                 UserDetails.setUserData(user.user.email,
                     document.data()['username'], document.data()['gender']);
               }
@@ -88,18 +68,15 @@ class _LoginScreenState extends State<LoginScreen> {
             createAlertDialog(
                 context, "Success", "Successfully logged in!", 200);
           } else {
-            // Displaying the alert dialog
             createAlertDialog(context, "Error",
                 "Something went wrong, try again later!", 404);
           }
 
-          // stops displaying the spinner once the result comes back
           setState(() {
             showSpinner = false;
           });
         } catch (e) {
           createAlertDialog(context, "Error", e.message, 404);
-          // stops displaying the spinner once the result comes back
           setState(() {
             showSpinner = false;
           });
@@ -228,7 +205,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        // GO TO THE FORGET PASSWORD SCREEN
                         Navigator.pushNamed(context, ForgetPassword.id);
                       },
                       child: Text(
@@ -241,9 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     RoundedButton(
                       onPressed: () {
-                        //Implement login functionality.
                         loginUserByEmailAndPassword(context);
-                        // clearing the text fields on submitted the details
                         _emailAddressTextFieldController.clear();
                         _passwordTextFieldController.clear();
                       },
@@ -268,8 +242,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
-//                              print("U tapped the sign up button");
-                              // GO TO THE SIGN IN SCREEN
                               Navigator.pushNamed(
                                   context, RegistrationScreen.id);
                             },

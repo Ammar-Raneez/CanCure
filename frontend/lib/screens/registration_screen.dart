@@ -7,11 +7,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:cancure/services/UserDetails.dart';
 
-// Firebase related variables
 final _firestore = FirebaseFirestore.instance;
 
 class RegistrationScreen extends StatefulWidget {
-  // static 'id' variable for the naming convention for the routes
   static String id = "registerScreen";
 
   @override
@@ -19,7 +17,6 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  // Variables used for the registration page
   String username;
   String email;
   String password;
@@ -59,7 +56,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // This variable is used to handle the screen widgets when the keyboard is opened
     double keyboardOpenVisibility = MediaQuery.of(context).viewInsets.bottom;
     final node = FocusScope.of(context);
     return SafeArea(
@@ -178,8 +174,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       node.nextFocus(),
                       _passwordTextFieldController.text = password,
                     },
-
-                    /// Move focus to next
                     controller: _passwordTextFieldController,
                     obscureText: !visiblePassword,
                     onChanged: (value) {
@@ -233,7 +227,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // GO TO THE LOGIN SCREEN
                       Navigator.pop(context);
                     },
                     child: Text(
@@ -289,17 +282,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 "gender": gender,
                                 'timestamp': Timestamp.now(),
                               });
-
-                              //clear chat bot messages on login/register
-                              _firestore
-                                  .collection("chatbot-messages")
-                                  .doc(email)
-                                  .collection("chatbot-messages")
-                                  .get()
-                                  .then((value) => {
-                                        for (var msg in value.docs)
-                                          {msg.reference.delete()}
-                                      });
 
                               // displaying alerts according to the progress
                               if (newUser != null) {

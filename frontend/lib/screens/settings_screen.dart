@@ -14,15 +14,12 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        // home: SettingsScreen("abc", "abc@gmail.com"),
-        );
+    return MaterialApp();
   }
 }
 
 // ignore: must_be_immutable
 class SettingsScreen extends StatefulWidget {
-  // static 'id' variable for the naming convention for the routes
   static String id = "settingsScreen";
   String userName;
   String email;
@@ -55,7 +52,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     var user = FirebaseAuth.instance.currentUser;
     var error = false;
 
-    // Updating the Username in Firebase Authentication
     user
         .updateProfile(displayName: newDisplayName)
         .then((value) {})
@@ -78,7 +74,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         "username": newDisplayName
       };
 
-      // Updating the username Field of the Document of a Specific User in Collections user
       FirebaseFirestore.instance
           .collection("users")
           .doc(user.email)
@@ -90,7 +85,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     var user = FirebaseAuth.instance.currentUser;
     var error = false;
 
-    // Updating the Username in Firebase Authentication
     FirebaseAuth.instance
         .signInWithEmailAndPassword(email: _email, password: password)
         .then((userCredential) {
@@ -116,12 +110,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       final firestore = FirebaseFirestore.instance;
 
-      // Updating the username Field of the Document of a Specific User in Collections user
-      firestore
-          .collection("users")
-          .doc(user.email)
-          .get()
-          .then((doc) {
+      firestore.collection("users").doc(user.email).get().then((doc) {
         if (doc.exists) {
           // saves the data to 'name'
           firestore
@@ -153,7 +142,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       "username": _userName
     };
 
-    // Updating the gender Field of the Document of a Specific User in Collections user
     FirebaseFirestore.instance
         .collection("users")
         .doc(user.email)

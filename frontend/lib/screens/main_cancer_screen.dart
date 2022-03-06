@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:cancure/components/cancer_card.dart'; //imports card component
+import 'package:cancure/components/cancer_card.dart';
 import 'package:cancure/screens/diagnosis/bone_screen.dart';
 import 'package:cancure/screens/diagnosis/kidney_screen.dart';
 import 'package:cancure/screens/prognosis/prognosis_screen.dart';
-import 'package:cancure/screens/selectService_screen.dart';
-
-/* This is the Cancer Page that displays an appbar with a gradient and a logo, three cards that allow the user to click on a
- certain cancer and be redirected to that page and the nav at the bottom. */
+import 'package:cancure/screens/select_service_screen.dart';
 
 class MainCancerTypesScreen extends StatefulWidget {
-  // static 'id' variable for the naming convention for the routes
   static String id = "mainCancerTypesScreen";
 
   @override
@@ -27,7 +23,6 @@ class _MainCancerTypesScreenState extends State<MainCancerTypesScreen> {
           child: SingleChildScrollView(
             child: Container(
               padding: EdgeInsets.only(
-                  //* might need to change when adding top row and nav
                   left: 22,
                   right: 22,
                   bottom: 20),
