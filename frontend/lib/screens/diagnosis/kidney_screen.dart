@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cancure/services/endPoints.dart';
 import 'package:dio/dio.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,140 +7,82 @@ import 'package:flutter/material.dart';
 import 'package:cancure/components/alert_widget.dart';
 import 'package:cancure/components/custom_app_bar.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:cancure/services/UserDetails.dart';
-import 'package:cancure/services/endPoints.dart';
 
 class KidneyDiagnosis extends StatefulWidget {
-  // static 'id' variable for the naming convention for the routes
-  static String id = "lungCancerDiagnosisScreen";
+  static String id = "kidneyCancerDiagnosisScreen";
 
   @override
   KidneyDiagnosisState createState() => KidneyDiagnosisState();
 }
 
 class KidneyDiagnosisState extends State<KidneyDiagnosis> {
-  //  VARIABLES
   File imageFile;
   Dio dio = new Dio();
   bool showSpinner = false;
-  bool showHighlightedImage = false;
   dynamic responseBody;
-  final _firestore = FirebaseFirestore.instance;
 
-  // OPEN GALLERY TO SELECT AN IMAGE METHOD (ASYNC TASK)
   _openGallery() async {
     var selectedPicture =
         // ignore: deprecated_member_use
         await ImagePicker.pickImage(source: ImageSource.gallery);
 
-    // NOTE that 'selectedPicture' may also contain 'null' value, suppose user opens gallery and exits
-    // without selecting a picture.
     setState(() {
       imageFile = selectedPicture;
-      showHighlightedImage = false;
     });
   }
 
-  // DETECT THE CANCER METHOD (ASYNC TASK)
   _detect(ProgressDialog progressDialog) async {
-    // If the user selects an image only we perform the API request else an alert will be displayed
     if (imageFile == null) {
-      // ALERT USER TO SELECT OR CAPTURE IMAGE FIRST OFF
       createAlertDialog(
           context, "Error", "There is no image selected or captured!", 404);
     } else {
       progressDialog.show();
       try {
-        // GETTING THE IMAGE NAME
         String fileName = imageFile.path.split('/').last;
-//        print(fileName);
-
-        // CREATING THE FORM DATA TO BE SENT TO THE BACKEND
         FormData formData = new FormData.fromMap({
           "file":
               await MultipartFile.fromFile(imageFile.path, filename: fileName),
         });
-//        print(formData);
 
-        // CREATING THE RESPONSE OBJECT TO GET THE RESULT FROM THE SERVER
         await getResponse(formData);
-
-        // RESPONSE RESULT FROM THE BACKEND
-        // responseBody = response.data[0];
-        String resultPrediction = responseBody['predition'];
-        String inputImageURL = responseBody['regular_image_url'];
-        String resultImageURL = responseBody['superimposed_image_url'];
-        String resultPercentage = responseBody['prediction_percentage'];
-
-        // Adding the response data into the database for report creation purpose
-        _firestore
-            .collection("users")
-            .doc(UserDetails.getUserData()["email"])
-            .collection("imageDetections")
-            .add({
-          "cancerType": "lung cancer",
-          "reportType": "diagnosis",
-          "result": resultPrediction,
-          "result_string": "$resultPrediction was detected",
-          "inputImageUrl": inputImageURL,
-          "imageUrl": resultImageURL,
-          "percentage": resultPercentage,
-          'timestamp': Timestamp.now(),
-        });
-
+        String resultPrediction = responseBody;
         progressDialog.hide();
-        // Display the spinner to indicate that its loading
-        setState(() {
-          showHighlightedImage = true;
-        });
 
-        // checking if the response is not null and displaying the result
         if (responseBody != null) {
-          // Displaying the alert dialog
-          createAlertDialog(context, "Diagnosis",
-              "Detection result: " + resultPrediction, 201);
+          createAlertDialog(context, "Diagnosis", resultPrediction, 201);
         } else {
-          // Displaying the alert dialog
           createAlertDialog(
               context, "Error", "Oops something went wrong!", 404);
         }
       } catch (e) {
-        // Displaying alert to the user
-        createAlertDialog(context, "Error", e._message, 404);
-
         progressDialog.hide();
+        createAlertDialog(context, "Error", e._message, 404);
       }
     }
   }
 
-  // Getting the detection response
   getResponse(FormData formData) async {
     Response response = await dio.post(
-      postLungCancerDetection_API,
+      KIDNEY_CANCER_DIAGNOSIS,
       data: formData,
     );
-    responseBody = response.data[0];
-//    print(responseBody);
+    responseBody = response.data['result'];
   }
 
-  // OPEN CAMERA METHOD TO CAPTURE IMAGE FOR DETECTION PURPOSE (ASYNC TASK)
   _openCamera() async {
     setState(() {
       showSpinner = true;
     });
 
     var selectedPicture =
+        // ignore: deprecated_member_use
         await ImagePicker.pickImage(source: ImageSource.camera);
 
     setState(() {
       imageFile = selectedPicture;
-      showHighlightedImage = false;
     });
 
-    // This delay is for building the image when clicked from camera cuz it takes some time to build
     Future.delayed(const Duration(milliseconds: 5000), () {
-      // NOTE that selectedPicture may also contain null value, suppose user opens the camera and exits
-      // without capturing a picture.
       setState(() {
         showSpinner = false;
       });
@@ -149,11 +91,9 @@ class KidneyDiagnosisState extends State<KidneyDiagnosis> {
 
   @override
   Widget build(BuildContext context) {
-    // Progress Dialog that will run till API Request is received
     final ProgressDialog progressDialog = ProgressDialog(context,
         type: ProgressDialogType.Normal, isDismissible: false, showLogs: true);
 
-    // Styling Progress Dialog
     progressDialog.style(
       message: '   Scanning\n   Image',
       padding: EdgeInsets.all(20),
@@ -182,7 +122,6 @@ class KidneyDiagnosisState extends State<KidneyDiagnosis> {
 
     return SafeArea(
       child: ModalProgressHUD(
-        // displaying the spinner for async tasks
         inAsyncCall: showSpinner,
         child: Scaffold(
           backgroundColor: Color(0xffAFD5DA),
@@ -192,7 +131,6 @@ class KidneyDiagnosisState extends State<KidneyDiagnosis> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // THE REST OF THE BODY CONTENT OF THE SCREEN
                 Expanded(
                   flex: 6,
                   child: Material(
@@ -200,7 +138,6 @@ class KidneyDiagnosisState extends State<KidneyDiagnosis> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // LUNG CANCER DIAGNOSIS TEXT CONTENT
                         Container(
                           alignment: Alignment.topLeft,
                           padding: EdgeInsets.only(left: 20),
@@ -225,33 +162,20 @@ class KidneyDiagnosisState extends State<KidneyDiagnosis> {
                             ),
                           ),
                         ),
-
-                        // DISPLAY THE UPLOADED IMAGE OR CAPTURED IMAGE BY THE USER
                         Expanded(
-                          child: showHighlightedImage == false
-                              ? Padding(
-                                  padding: const EdgeInsets.all(22),
-                                  child: imageFile == null
-                                      ? Image.asset(
-                                          'images/uploadImageGrey1.png',
-                                          scale: 13,
-                                        )
-                                      : Image.file(
-                                          imageFile,
-                                          width: 500,
-                                          height: 500,
-                                        ),
+                            child: Padding(
+                          padding: const EdgeInsets.all(22),
+                          child: imageFile == null
+                              ? Image.asset(
+                                  'images/uploadImageGrey1.png',
+                                  scale: 13,
                                 )
-                              : Padding(
-                                  padding: const EdgeInsets.all(20.0),
-                                  child: FadeInImage.assetNetwork(
-                                    placeholder: 'images/loading.gif',
-                                    image: responseBody["regular_image_url"],
-                                  ),
+                              : Image.file(
+                                  imageFile,
+                                  width: 500,
+                                  height: 500,
                                 ),
-                        ),
-
-                        // CAPTURE(FROM CAMERA) AND UPLOAD(FROM GALLERY) BUTTON
+                        )),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -315,7 +239,6 @@ class KidneyDiagnosisState extends State<KidneyDiagnosis> {
                         SizedBox(
                           height: 20.0,
                         ),
-                        // DETECTION BUTTON
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.blueGrey,

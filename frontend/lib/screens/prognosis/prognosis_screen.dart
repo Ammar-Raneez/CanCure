@@ -21,22 +21,12 @@ class CancerPrognosis extends StatefulWidget {
   CancerPrognosis(String cancerType) {
     this._cancerType = cancerType;
 
-    if (cancerType == "Breast Cancer") {
+    if (cancerType == "Kidney Cancer") {
       _cancerPrognosisAttributes = BREAST_CANCER_PROGNOSIS_QUESTIONS;
-      _url = postBreastCancerPrediction_API;
-    } else if (cancerType == "Lung Cancer") {
+      _url = KIDNEY_CANCER_PROGNOSIS;
+    } else if (cancerType == "Bone Cancer") {
       _cancerPrognosisAttributes = LUNG_CANCER_PROGNOSIS_QUESTIONS;
-      _url = postLungCancerPrediction_API;
-    } else if (cancerType == "Skin Cancer") {
-      _url = postSkinCancerPrediction_API;
-
-      if (UserDetails.getUserData()['gender'] == "male") {
-        _cancerPrognosisAttributes = SKIN_CANCER_PROGNOSIS_QUESTIONS_MALE;
-        _skinCancerAnswers = SKIN_CANCER_PROGNOSIS_ANSWER_OPTIONS_MALE;
-      } else if (UserDetails.getUserData()['gender'] == "female") {
-        _cancerPrognosisAttributes = SKIN_CANCER_PROGNOSIS_QUESTIONS_FEMALE;
-        _skinCancerAnswers = SKIN_CANCER_PROGNOSIS_ANSWER_OPTIONS_FEMALE;
-      }
+      _url = BONE_CANCER_PROGNOSIS;
     }
   }
 

@@ -1,16 +1,5 @@
 // API END POINTS
-const postLungCancerPrediction_API =
-    "https://onco-prognosis-backend.herokuapp.com/prognosis_lung";
-const postSkinCancerPrediction_API =
-    "https://onco-prognosis-backend.herokuapp.com/prognosis_skin";
-const postBreastCancerPrediction_API =
-    "https://onco-prognosis-backend.herokuapp.com/prognosis_breast";
-
-const postLungCancerDetection_API =
-    "https://lungmodelsdgp.azurewebsites.net/api/lungmodelsdgp?model=lung";
-const postSkinCancerDetection_API =
-    "https://skinmodelsdgp.azurewebsites.net/api/skinmodelsdgp?model=skin";
-const postBreastCancerDetection_API =
-    "https://breastmodelsdgp.azurewebsites.net/api/breastmodelsdgp?model=breast";
-const postChatBotMessage_API =
-    "https://chatbot-deployment.azurewebsites.net/api/chatbot-deployment";
+const BONE_CANCER_PROGNOSIS="https://cancure-prognosis-api.herokuapp.com/prognosis/bone";
+const KIDNEY_CANCER_PROGNOSIS="https://cancure-prognosis-api.herokuapp.com/prognosis/kidney";
+const BONE_CANCER_DIAGNOSIS="https://cancure-bone-diagnosis-api.herokuapp.com/diagnosis/bone";
+const KIDNEY_CANCER_DIAGNOSIS="https://cancure-kidney-diagnosis-api.herokuapp.com/diagnosis/kidney";

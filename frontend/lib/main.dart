@@ -21,21 +21,15 @@ Future main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
-        debugShowCheckedModeBanner: false,
-
-        // This is the first screen which will be displayed for the user when he opens the app
-        home: LoginScreen(),
-
-        // This is the initial route for the app
-        initialRoute: LoginScreen.id,
-
-        // Creating Named routes for all the pages (we used named routes when we deal with multiple routes 'more than 2')
-        routes: {
-          LoginScreen.id: (context) => LoginScreen(),
-          RegistrationScreen.id: (context) => RegistrationScreen(),
-          ForgetPassword.id: (context) => ForgetPassword(),
-          CurrentScreen.id: (context) => CurrentScreen(),
-          KidneyDiagnosis.id: (context) => KidneyDiagnosis(),
-          BoneDiagnosis.id: (context) => BoneDiagnosis(),
-        });
+          debugShowCheckedModeBanner: false,
+          home: LoginScreen(),
+          initialRoute: LoginScreen.id,
+          routes: {
+            LoginScreen.id: (context) => LoginScreen(),
+            RegistrationScreen.id: (context) => RegistrationScreen(),
+            ForgetPassword.id: (context) => ForgetPassword(),
+            CurrentScreen.id: (context) => CurrentScreen(),
+            KidneyDiagnosis.id: (context) => KidneyDiagnosis(),
+            BoneDiagnosis.id: (context) => BoneDiagnosis(),
+          });
 }
