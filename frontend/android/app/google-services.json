@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "825014207878",
+    "project_id": "cancure-20f7f",
+    "storage_bucket": "cancure-20f7f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:825014207878:android:a6883455cdc23744799807",
+        "android_client_info": {
+          "package_name": "com.ui.cancure"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "825014207878-o3v5bmbrqorc5t0v2gk5hoc920oorjhn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrASamXueHScavZbKkfV89oH50LMiVgT8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "825014207878-o3v5bmbrqorc5t0v2gk5hoc920oorjhn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
