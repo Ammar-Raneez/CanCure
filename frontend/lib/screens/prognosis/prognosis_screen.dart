@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:group_button/group_button.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:cancure/components/alert_widget.dart';
 import 'package:cancure/components/custom_app_bar.dart';
 import 'package:cancure/constants.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cancure/services/UserDetails.dart';
 import 'package:cancure/services/endPoints.dart';
 import 'dart:convert';
 import 'dart:io';
@@ -16,48 +13,41 @@ class CancerPrognosis extends StatefulWidget {
   var _cancerType;
   var _url;
   var _cancerPrognosisAttributes;
-  var _skinCancerAnswers;
 
   CancerPrognosis(String cancerType) {
     this._cancerType = cancerType;
 
     if (cancerType == "Kidney Cancer") {
-      _cancerPrognosisAttributes = BREAST_CANCER_PROGNOSIS_QUESTIONS;
+      _cancerPrognosisAttributes = KIDNEY_CANCER_PROGNOSIS_QUESTIONS;
       _url = KIDNEY_CANCER_PROGNOSIS;
     } else if (cancerType == "Bone Cancer") {
-      _cancerPrognosisAttributes = LUNG_CANCER_PROGNOSIS_QUESTIONS;
+      _cancerPrognosisAttributes = BONE_CANCER_PROGNOSIS_QUESTIONS;
       _url = BONE_CANCER_PROGNOSIS;
     }
   }
 
   @override
-  CancerPrognosisState createState() => CancerPrognosisState(
-      _cancerType, _cancerPrognosisAttributes, _skinCancerAnswers, _url);
+  CancerPrognosisState createState() =>
+      CancerPrognosisState(_cancerType, _cancerPrognosisAttributes, _url);
 }
 
 class CancerPrognosisState extends State<CancerPrognosis> {
   ScrollController _controller = ScrollController();
   List<Widget> _itemsData = [];
   List<TextEditingController> _textFieldControllers = [];
-  List<String> _skinCancerUserAnswers = [];
   Map prognosisBody;
-  final _firestore = FirebaseFirestore.instance;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   var _cancerType;
   var _cancerPrognosisAttributes;
-  var _skinCancerAnswers;
   var _url;
   var _count = 0;
 
-  CancerPrognosisState(var cancerType, var cancerPrognosisAttributes,
-      var skinCancerAnswers, var url) {
+  CancerPrognosisState(var cancerType, var cancerPrognosisAttributes, var url) {
     this._cancerType = cancerType;
     this._cancerPrognosisAttributes = cancerPrognosisAttributes;
-    this._skinCancerAnswers = skinCancerAnswers;
     this._url = url;
   }
 
-  // https://stackoverflow.com/questions/50278258/http-post-with-json-on-body-flutter-dart <- REFERENCE
   Future<String> apiRequest() async {
     HttpClient httpClient = new HttpClient();
     HttpClientRequest request = await httpClient.postUrl(Uri.parse(_url));
@@ -67,161 +57,6 @@ class CancerPrognosisState extends State<CancerPrognosis> {
     String reply = await response.transform(utf8.decoder).join();
     httpClient.close();
     return reply;
-  }
-
-  void _getPostsDataSkin() {
-    // for (String question in cancerPrognosisAttributes) {
-    //   if (question != "Age") {
-    //     skinCancerUserAnswers.add("");
-    //   }
-    // }
-
-    if (UserDetails.getUserData()['gender'] == "male") {
-      for (List answer in SKIN_CANCER_PROGNOSIS_ANSWER_OPTIONS_MALE) {
-        _skinCancerUserAnswers.add(answer[0]);
-      }
-    } else {
-      for (List answer in SKIN_CANCER_PROGNOSIS_ANSWER_OPTIONS_FEMALE) {
-        _skinCancerUserAnswers.add(answer[0]);
-      }
-    }
-
-    List<dynamic> responseList = _cancerPrognosisAttributes;
-    List<Widget> listItems = [];
-    responseList.forEach((post) {
-      if (_count == 0) {
-        _textFieldControllers.add(
-          new TextEditingController(),
-        );
-        listItems.add(
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-              child: Container(
-                child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                    margin: EdgeInsets.only(top: 0, bottom: 10),
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18),
-                      color: Color(0xFFABD8E2),
-                    ),
-                    child: Column(children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.only(bottom: 10),
-                        child: Text(
-                          post,
-                          style: TextStyle(
-                            fontFamily: 'Poppins-SemiBold',
-                            color: Colors.blueGrey,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                      Form(
-                        key: _formKey,
-                        child: TextFormField(
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter some Input';
-                            } else if (int.parse(value) < 26 ||
-                                int.parse(value) > 70)
-                              return 'Please make sure User Input is between 25 and 70';
-
-                            return null;
-                          },
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
-                          keyboardType: TextInputType.number,
-                          controller: _textFieldControllers[_count],
-                          decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white,
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: new BorderSide(color: Colors.white),
-                                borderRadius: new BorderRadius.circular(16),
-                              ),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: new BorderSide(color: Colors.white),
-                                borderRadius: new BorderRadius.circular(16),
-                              ),
-                              hintText: 'Enter the Value for the Input'),
-                        ),
-                      ),
-                    ])),
-              ),
-            ),
-          ),
-        );
-      } else {
-        List<String> skinCancerOptions = [];
-
-        for (int i = 0; i < _skinCancerAnswers[_count - 1].length; i++)
-          skinCancerOptions.add(_skinCancerAnswers[_count - 1][i]);
-
-        int currentQuestion = 0;
-        currentQuestion = _count - 1;
-
-        listItems.add(
-          Container(
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-              child: Container(
-                child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                    margin: EdgeInsets.only(top: 0, bottom: 10),
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18),
-                      color: Color(0xFFABD8E2),
-                    ),
-                    child: Column(children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.only(bottom: 10),
-                        child: Text(
-                          post,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: 'Poppins-SemiBold',
-                            color: Colors.blueGrey,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                      Column(
-                        children: <Widget>[
-                          GroupButton(
-                            selectedTextStyle: TextStyle(color: Colors.white),
-                            selectedColor: Colors.redAccent,
-                            spacing: 20,
-                            onSelected: (index, isSelected) =>
-                                _skinCancerUserAnswers[currentQuestion] =
-                                    _skinCancerAnswers[currentQuestion][index],
-                            buttons: List.from(skinCancerOptions),
-                          )
-                        ],
-                      )
-                    ])),
-              ),
-            ),
-          ),
-        );
-      }
-      if (_count != 7) _count++;
-    });
-    setState(() {
-      _itemsData = listItems;
-    });
   }
 
   void _getPostsData() {
@@ -297,14 +132,7 @@ class CancerPrognosisState extends State<CancerPrognosis> {
   @override
   void initState() {
     super.initState();
-
-    /* If Cancer Type is Skin then a Separate Post Data Method for the Construction of the ListView
-     * due to the fact that Skin Cancer uses Grouped Buttons
-     */
-    if (_cancerType == "Skin Cancer")
-      _getPostsDataSkin();
-    else
-      _getPostsData();
+    _getPostsData();
   }
 
   @override
@@ -337,25 +165,8 @@ class CancerPrognosisState extends State<CancerPrognosis> {
                   IconButton(
                     icon: Icon(Icons.help),
                     onPressed: () {
-                      // Setting the Help Message on the Alert Dialog based on the Cancer Type
-                      String helpMessage;
-
-                      if (_cancerType == "Breast Cancer")
-                        helpMessage =
-                            "Fine needle aspiration is a type of biopsy "
-                            "procedure. In fine needle aspiration, a thin needle "
-                            "is inserted into an area of abnormal-appearing tissue or body fluid";
-                      else if (_cancerType == "Lung Cancer")
-                        helpMessage =
-                            "You need to enter values based on your own scale for all these inputs "
-                            "based on how much you think this factor is involved in your life. i.e for Alcohol Use "
-                            "you but a Higher number if you think you consume or are exposed to large amounts of alcohol";
-                      else if (_cancerType == "Skin Cancer")
-                        helpMessage =
-                            "Simply Toggle a Button for each Question based on your Answer to calculate"
-                            " your Risk of Skin Cancer over the next 5 Years";
-
-                      // Displaying the help alert dialog
+                      String helpMessage =
+                          "Based on your inputs the prognosis would be whether or not there's a risk of cancer within next 5 years";
                       createAlertDialog(context, "Help", helpMessage, 404);
                     },
                   )
@@ -376,20 +187,9 @@ class CancerPrognosisState extends State<CancerPrognosis> {
               const SizedBox(
                 height: 10,
               ),
-              if (_cancerType != "Skin Cancer")
-                Expanded(
-                  child: Form(
-                    key: _formKey,
-                    child: ListView.builder(
-                        controller: _controller,
-                        itemCount: _itemsData.length,
-                        itemBuilder: (context, index) {
-                          return _itemsData[index];
-                        }),
-                  ),
-                ),
-              if (_cancerType == "Skin Cancer")
-                Expanded(
+              Expanded(
+                child: Form(
+                  key: _formKey,
                   child: ListView.builder(
                       controller: _controller,
                       itemCount: _itemsData.length,
@@ -397,6 +197,7 @@ class CancerPrognosisState extends State<CancerPrognosis> {
                         return _itemsData[index];
                       }),
                 ),
+              ),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.blueGrey,
@@ -433,131 +234,21 @@ class CancerPrognosisState extends State<CancerPrognosis> {
                     shape: const StadiumBorder(),
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
-                        /* If Else Conditions here to take each Input from the
-                         * textFieldControllers Array, and setting the Input to
-                         * each Attribute required by a Model in a Dictionary
-                         * the Number Controllers will match the number of Attributes
-                         * required by the Model
-                         */
-
-                        int genderIndex = 0;
-
-                        if (UserDetails.getUserData()['gender'] == "female")
-                          genderIndex = 1;
-
-//                        print(genderIndex);
-
-                        if (_cancerType == "Lung Cancer") {
+                        if (_cancerType == "Bone Cancer") {
                           prognosisBody = {
-                            "Age": _textFieldControllers[0].text,
-                            "Gender": genderIndex,
-                            "AirPollution":
-                                ((int.parse(_textFieldControllers[1].text) /
-                                            10) *
-                                        8)
-                                    .toString(),
-                            "Alcoholuse":
-                                ((int.parse(_textFieldControllers[2].text) /
-                                            10) *
-                                        8)
-                                    .toString(),
-                            "DustAllergy":
-                                ((int.parse(_textFieldControllers[3].text) /
-                                            10) *
-                                        8)
-                                    .toString(),
-                            "OccuPationalHazards":
-                                ((int.parse(_textFieldControllers[4].text) /
-                                            10) *
-                                        8)
-                                    .toString(),
-                            "GeneticRisk":
-                                ((int.parse(_textFieldControllers[5].text) /
-                                            10) *
-                                        7)
-                                    .toString(),
-                            "chronicLungDisease":
-                                ((int.parse(_textFieldControllers[6].text) /
-                                            10) *
-                                        7)
-                                    .toString(),
-                            "BalancedDiet":
-                                ((int.parse(_textFieldControllers[7].text) /
-                                            10) *
-                                        7)
-                                    .toString(),
-                            "Obesity":
-                                ((int.parse(_textFieldControllers[8].text) /
-                                            10) *
-                                        7)
-                                    .toString(),
-                            "Smoking":
-                                ((int.parse(_textFieldControllers[9].text) /
-                                            10) *
-                                        8)
-                                    .toString(),
-                            "PassiveSmoker":
-                                ((int.parse(_textFieldControllers[10].text) /
-                                            10) *
-                                        8)
-                                    .toString(),
-                            "ChestPain":
-                                ((int.parse(_textFieldControllers[11].text) /
-                                            10) *
-                                        9)
-                                    .toString(),
-                            "CoughingofBlood":
-                                ((int.parse(_textFieldControllers[12].text) /
-                                            10) *
-                                        9)
-                                    .toString(),
-                            "Fatigue":
-                                ((int.parse(_textFieldControllers[13].text) /
-                                            10) *
-                                        9)
-                                    .toString(),
-                            "WeightLoss":
-                                ((int.parse(_textFieldControllers[14].text) /
-                                            10) *
-                                        8)
-                                    .toString(),
-                            "ShortnessofBreath":
-                                ((int.parse(_textFieldControllers[15].text) /
-                                            10) *
-                                        9)
-                                    .toString(),
-                            "Wheezing":
-                                ((int.parse(_textFieldControllers[16].text) /
-                                            10) *
-                                        8)
-                                    .toString(),
-                            "SwallowingDifficulty":
-                                ((int.parse(_textFieldControllers[17].text) /
-                                            10) *
-                                        8)
-                                    .toString(),
-                            "ClubbingofFingerNails":
-                                ((int.parse(_textFieldControllers[18].text) /
-                                            10) *
-                                        9)
-                                    .toString(),
-                            "FrequentCold":
-                                ((int.parse(_textFieldControllers[19].text) /
-                                            10) *
-                                        7)
-                                    .toString(),
-                            "DryCough":
-                                ((int.parse(_textFieldControllers[20].text) /
-                                            10) *
-                                        7)
-                                    .toString(),
-                            "Snoring":
-                                ((int.parse(_textFieldControllers[21].text) /
-                                            10) *
-                                        7)
-                                    .toString(),
+                            "Blue.count":
+                                int.parse(_textFieldControllers[0].text),
+                            "red.count":
+                                int.parse(_textFieldControllers[1].text),
+                            "Blue.percentage":
+                                int.parse(_textFieldControllers[2].text),
+                            "red.percentage":
+                                int.parse(_textFieldControllers[3].text),
+                            "area": int.parse(_textFieldControllers[4].text),
+                            "circularity":
+                                int.parse(_textFieldControllers[5].text),
                           };
-                        } else if (_cancerType == "Breast Cancer") {
+                        } else if (_cancerType == "Kidney Cancer") {
                           prognosisBody = {
                             "radius_mean": _textFieldControllers[0].text,
                             "texture_mean": _textFieldControllers[1].text,
@@ -588,68 +279,14 @@ class CancerPrognosisState extends State<CancerPrognosis> {
                             "positive_axillary_lymph_node":
                                 _textFieldControllers[21].text
                           };
-                        } else if (_cancerType == "Skin Cancer") {
-                          List<int> skinCancerUserAnswersIndices = [];
-
-                          int questionCount = 0;
-                          int answerInQuestionCount;
-                          for (String userAnswer in _skinCancerUserAnswers) {
-                            answerInQuestionCount = 0;
-                            if (userAnswer == "") {
-                              skinCancerUserAnswersIndices.add(0);
-                              continue;
-                            }
-                            for (String answer
-                                in _skinCancerAnswers[questionCount]) {
-                              if (userAnswer == answer) {
-                                skinCancerUserAnswersIndices
-                                    .add(answerInQuestionCount);
-                                break;
-                              }
-                              answerInQuestionCount++;
-                            }
-                            questionCount++;
-                          }
-
-//                          print(skinCancerUserAnswersIndices);
-
-                          if (UserDetails.getUserData()['gender'] == "male")
-                            prognosisBody = {
-                              "age": _textFieldControllers[0].text,
-                              "gender": "male",
-                              "sunburn": skinCancerUserAnswersIndices[1],
-                              "complexion": skinCancerUserAnswersIndices[0],
-                              "big-moles": skinCancerUserAnswersIndices[2],
-                              "small-moles": skinCancerUserAnswersIndices[3],
-                              "freckling": skinCancerUserAnswersIndices[4],
-                              "damage": skinCancerUserAnswersIndices[5],
-                              "tan": 0
-                            };
-                          else if (UserDetails.getUserData()['gender'] ==
-                              "female")
-                            prognosisBody = {
-                              "age": _textFieldControllers[0].text,
-                              "gender": "female",
-                              "sunburn": 0,
-                              "complexion": skinCancerUserAnswersIndices[0],
-                              "big-moles": 0,
-                              "small-moles": skinCancerUserAnswersIndices[2],
-                              "freckling": skinCancerUserAnswersIndices[3],
-                              "damage": 0,
-                              "tan": skinCancerUserAnswersIndices[1]
-                            };
                         }
 
-//                        print(prognosisBody);
-
-                        // Progress Dialog that will run till API Request is received
                         final ProgressDialog progressDialog = ProgressDialog(
                             context,
                             type: ProgressDialogType.Normal,
                             isDismissible: false,
                             showLogs: true);
 
-                        // Styling Progress Dialog
                         progressDialog.style(
                           message: '   Analyzing\n   Input',
                           padding: EdgeInsets.all(20),
@@ -676,24 +313,14 @@ class CancerPrognosisState extends State<CancerPrognosis> {
                           ),
                         );
 
-                        // Showing the Progress Dialog and Dismissing it After the API Request is Received
                         progressDialog.show();
-
                         String reply = await apiRequest();
-
                         progressDialog.hide();
 
-//                        print(reply);
-
-                        // checking if the response is not null and displaying the result
                         if (reply != null) {
                           final body = json.decode(reply);
-
                           var prognosisResult;
-
                           if (body["message"] == "Internal Server Error")
-
-                            // Displaying the alert dialog if Internal Server Error
                             createAlertDialog(
                                 context,
                                 "Error",
@@ -706,11 +333,6 @@ class CancerPrognosisState extends State<CancerPrognosis> {
                               prognosisResult = body['result_string'];
                             }
 
-                            /* For Breast Cancer Prognosis the Result is either 'R'
-                             * for Recurring and 'N' for Non-Recurring, so an If Condition
-                             * is used to set the Result to a more User Friendly
-                             * message
-                             */
                             if (prognosisResult == "N" &&
                                 _cancerType == "Breast Cancer")
                               prognosisResult = "Non-Recurring";
@@ -718,36 +340,10 @@ class CancerPrognosisState extends State<CancerPrognosis> {
                                 _cancerType == "Breast Cancer")
                               prognosisResult = "Recurring";
 
-                            // Displaying the alert dialog
                             createAlertDialog(
                                 context, "Prognosis", prognosisResult, 203);
-
-                            // Adding the response data into the database for report creation purpose
-                            // initially, convert all inputs into strings for the report
-                            Map firebasePrognosisBody;
-                            setState(() {
-                              firebasePrognosisBody = prognosisBody;
-
-                              for (var eachItem in firebasePrognosisBody.keys) {
-                                firebasePrognosisBody[eachItem] =
-                                    firebasePrognosisBody[eachItem].toString();
-                              }
-                            });
-
-                            _firestore
-                                .collection("users")
-                                .doc(UserDetails.getUserData()["email"])
-                                .collection("InputPrognosis")
-                                .add({
-                              "prognosisInputs": firebasePrognosisBody,
-                              "cancerType": _cancerType,
-                              "reportType": "prognosis",
-                              "result": prognosisResult,
-                              'timestamp': Timestamp.now(),
-                            });
                           }
                         } else {
-                          // Displaying the alert dialog
                           createAlertDialog(context, "Error",
                               "Oops something went wrong!", 404);
                         }
