@@ -1,17 +1,7 @@
 import requests
 
 BASE_URL = 'https://cancure-prognosis-api.herokuapp.com/prognosis/'
-BONE_PROGNOSIS = BASE_URL + 'bone'
 KIDNEY_PROGNOSIS = BASE_URL + 'kidney'
-
-bone_prognosis_test_body = {
-    'Blue.count': 16611,
-    'red.count': 52475,
-    'Blue.percentage': 1.584148,
-    'red.percentage': 5.004406,
-    'area': 81.252033,
-    'circularity': 0.081106
-}
 
 kidney_prognosis_test_body = {
     'age': 48.0,
@@ -32,9 +22,6 @@ kidney_prognosis_test_body = {
     'appet': 0,
     'ane': 0
 }
-
-response = requests.post(BONE_PROGNOSIS, data=bone_prognosis_test_body)
-print(response.json())
 
 response = requests.post(KIDNEY_PROGNOSIS, data=kidney_prognosis_test_body)
 print(response.json())
