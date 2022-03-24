@@ -9,7 +9,24 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 CORS(app)
 API = Api(app)
 
+bone_prognosis_model = joblib.load('bone-prognosis.pickle')
 kidney_prognosis_model = joblib.load('kidney-prognosis.pickle')
+
+class BonePrognosis(Resource):
+    @staticmethod
+    def post():
+        parser = reqparse.RequestParser()
+        parser.add_argument('Blue.count')
+        parser.add_argument('red.count')
+        parser.add_argument('Blue.percentage')
+        parser.add_argument('red.percentage')
+        parser.add_argument('area')
+        parser.add_argument('circularity')
+        args = parser.parse_args()
+        prognosis_input = np.fromiter(args.values(), dtype=float)
+        out = {'Prediction': bone_prognosis_model.predict([prognosis_input])[0]}
+        print("Output: ", out)
+        return { "Prediction": "There is a possibility of cancer within the next 5 years" if int(out['Prediction']) else "Cancer within next 5 years is unlikely" }, 200
 
 class KidneyPrognosis(Resource):
     @staticmethod
@@ -38,6 +55,7 @@ class KidneyPrognosis(Resource):
         print("Output: ", out)
         return { "Prediction": "There is a possibility of cancer within the next 5 years" if int(out['Prediction']) else "Cancer within next 5 years is unlikely" }, 200
 
+API.add_resource(BonePrognosis, '/prognosis/bone')
 API.add_resource(KidneyPrognosis, '/prognosis/kidney')
 
 if __name__ == "__main__":
